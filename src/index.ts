@@ -29,9 +29,15 @@ import amazon from "./providers/amazon";
 
 const generateQueue = <T>() => {
     const queue: T[] = [];
-    const add = (item: T) => { queue.unshift(item) }
+    const add = (item: T) => {
+        queue.unshift(item)
+    }
     const pop = () => queue.pop();
-    return { add, pop , len: queue.length };
+    return {
+        add,
+        pop ,
+        get len () { return queue.length }
+    };
 }
 
 interface Input {
@@ -66,7 +72,7 @@ const pricesQueue = generateQueue<Good>();
     // The actual interesting bit
     await context.route('**.jpg', route => route.abort());
 
-
+    console.log('debug asuns and inptsQueue: ', asins, inputsQueue)
     while (inputsQueue.len > 0) { //TODO: may be while true instead? so it will check even after queue is 0
         const input = inputsQueue.pop()
 
