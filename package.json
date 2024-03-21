@@ -1,0 +1,21 @@
+{
+  "name": "web-scout",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Artsem Belavusau <artsem.belavusau@dh.com>",
+  "license": "MIT",
+  "dependencies": {
+    "playwright-chromium": "^1.42.1"
+  },
+  "engines": {
+    "node": ">=20.11.1"
+  },
+  "scripts": {
+    "build": "tsc src",
+    "start": "tsc && node built/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.3"
+  }
+}

@@ -1,0 +1,6 @@
+.DS_Store
+.idea/
+backup/
+built/
+node_modules/
+src1/
