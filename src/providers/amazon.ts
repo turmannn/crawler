@@ -6,14 +6,14 @@ export default (page: Page, asin): Action => {
     const url = 'https://amazon.com'
     const selFldSearch = '#twotabsearchtextbox'
     const labelFldSearch = 'Search Amazon'
-    const valBtnSearch = 'Go';
+    const locBtnSearch = page.locator('#nav-search-submit-button');
     const selProductTile = `//div[@data-asin="${asin}"]`
-    const locSpanPrice = page.locator(`${selProductTile}//*[@class="a-offscreen"]`);
-    const locH2Name = page.locator(`${selProductTile}//a`);
+    const locSpanPrice = page.locator(`${selProductTile}//*[@class='a-price']//*[@class="a-offscreen"]`);
+    const locH2Name = page.locator(`${selProductTile}//h2`);
 
     const searchProduct = async () => {
         await page.getByLabel(labelFldSearch).fill(asin);
-        await page.getByAltText(valBtnSearch).click();
+        await locBtnSearch.click();
     }
 
     const getPrice = () => {
