@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "rootDir": "./src/web-scout",
+      "outDir": "./dist/web-scout",
+      "target": "es5",
+      "lib": ["es2015", "dom"]
+    },
+    "include": ["src/web-scout/**/*.ts"]
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "web-scout",
+  "name": "crawler",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Artsem Belavusau <artsem.belavusau@dh.com>",
@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "tsc src",
-    "start": "tsc && node built/index.js"
+    "start": "tsc && node dist/index.js",
+    "start-webscout": "tsc -p tsconfig.web-scout.json && node dist/web-scout/index.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
