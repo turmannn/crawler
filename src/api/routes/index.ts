@@ -5,7 +5,7 @@ const router = Router();
 
 router.use('/products', productRoutes);
 
-router.get('/*', (req, res) => {
+router.use('/*', (req, res) => {
     res.send('unsupported endpoint')
 })
 

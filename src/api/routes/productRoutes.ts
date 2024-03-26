@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {addProduct} from "../controllers/productsController.js";
+import {addProduct, getProducts} from "../controllers/productsController.js";
 // import {addProducts, getProducts} from '../controllers/productsController.js'
 
 const router = Router();
@@ -9,7 +9,7 @@ const router = Router();
 // router.get('/:id', userController.getUserById);
 
 // router.get('/getProducts', getProducts);
-// router.get('/', getProducts);
+router.get('/', getProducts);
 router.post('/add', addProduct)
 
 export default router

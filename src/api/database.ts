@@ -30,7 +30,8 @@ const adapter = new JSONFileSync<DBData>(config.database.path)
 export const db = new LowSync<DBData>(adapter, {productsIn: [], productsOut: []})
 
 // persist old data if server restarted
-await db.read()
-db.data = {...db.data}
-await db.write()
+await db.read();
+await db.write();
+// db.data = {...db.data}
+
 
