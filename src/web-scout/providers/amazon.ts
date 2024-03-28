@@ -1,8 +1,10 @@
 import {Page} from "playwright-chromium";
-import {Action, Store} from "../types.js";
+import {StoreEnum} from "../../api/types.js";
+import {Action} from "../types.js";
+// import {Action, Store} from "../types.js";
 
 export default (page: Page, asin: string): Action => {
-    const storeName: Store = 'amazon';
+    const storeName: StoreEnum = StoreEnum.Amazon;
     const url = 'https://amazon.com'
     const selFldSearch = '#twotabsearchtextbox'
     const labelFldSearch = 'Search Amazon'

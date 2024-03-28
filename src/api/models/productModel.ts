@@ -60,28 +60,28 @@ import {LowSync} from "lowdb";
 
 
 const productModel = {
-    getProcessedProducts: async (): Promise<ProductOut[]>  => {
-        await db.read()
-        return db.data.productsOut;
-    },
-    addProcessedProduct: async (product: ProductOut): Promise<void>  => {
-        db.data.productsOut.push(product);
-        await db.write();
-    },
-    getDbData: async (): Promise<Product | {}>  => {
+    getDbData: async (): Promise<Product | {}>  => { //TODO: test method. Delete later
         await db.read()
         return db.data;
     },
-    findProductIn: async (id: string, storeName: string): Promise<Product | undefined> => {
+    findProduct: async (id: string, storeName: string): Promise<Product | undefined> => {
         await db.read()
         const { productsIn } = db.data;
         return productsIn.find((product) => product.id === id && product.storeName === storeName)
     },
-    getProductsIn: async (): Promise<Product[]> => {
+    removeProducts: async (product: Product): Promise<Product[] | []> => {
+        db.read()
+        db.data.productsIn.filter(item => item.id !== product.id || item.storeName !== product.storeName  )
+        db.update()
+        db.write();
+        db.read();
+        return db.data.productsIn
+    },
+    getProducts: async (): Promise<Product[]> => {
         await db.read()
         return db.data.productsIn;
     },
-    addProductIn: async (product: Product): Promise<Product[]> => {
+    addProduct: async (product: Product): Promise<Product[]> => {
         // await dbConnection.read();
         // // dbConnection.data = { products: [ ...dbConnection.data.products, product] };
         // dbConnection.data = { products: [ ...(dbConnection.data as DBData).products, product] };

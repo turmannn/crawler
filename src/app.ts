@@ -8,6 +8,10 @@ import routes from './api/routes/index.js'
 // import { LowSync } from 'lowdb';
 // import { JSONFileSync } from 'lowdb/node'
 import config from './api/config/index.js';
+// import webScout from "./web-scout/index.js";
+import { initScoutService } from "./services/scoutsService.js";
+import {webScout} from "./web-scout/index.js";
+import {initDb} from "./api/database.js";
 // import {dbConnect} from "./api/models/productModel";
 
 // db
@@ -18,6 +22,12 @@ import config from './api/config/index.js';
 // const adapter = new JSONFileSync<DBData>(index.database.path)
 // const db = new LowSync(adapter, {products: []}) //TODO: does ot rewrite existing data? if so fix it!
 // export const connect = dbConnect();
+
+initDb()
+
+
+console.log('about to move products from db to stores queues')
+initScoutService();
 
 // express app
 const app = express();

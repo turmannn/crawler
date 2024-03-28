@@ -40,12 +40,15 @@ export const addProduct = async (req: Request<{}, {}, Product>, res: Response) =
             res.status(400).send('store name provided is not supported')
         } else {
             const serviceRes =
-                await productService.processProduct({ id, storeName: storeName.toLowerCase() as StoreEnum });
+                await productService.processProduct({
+                    id: id.toString(),
+                    storeName: storeName.toString().toLowerCase() as StoreEnum
+                });
             res.status(200).json(serviceRes);
         }
     } catch (e) {
         console.error(e)
-        res.status(500)
+        res.status(500).send('unable to process request')
     }
 
 

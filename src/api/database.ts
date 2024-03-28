@@ -27,11 +27,18 @@ import {DBData} from "./types.js";
 
 
 const adapter = new JSONFileSync<DBData>(config.database.path)
-export const db = new LowSync<DBData>(adapter, {productsIn: [], productsOut: []})
+export const db = new LowSync<DBData>(adapter, {
+    productsIn: [],
+    productsOut: [],
+    unprocessed: []
+})
 
 // persist old data if server restarted
-await db.read();
-await db.write();
+export const initDb = async () => {
+    await db.read();
+    await db.write();
+}
+
 // db.data = {...db.data}
 
 

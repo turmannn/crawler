@@ -1,7 +1,9 @@
-export type Store = 'amazon' | 'ebay'
+// export type Store = 'amazon' | 'ebay'
+
+import {StoreEnum} from "../api/types.js";
 
 export interface Action {
-    storeName: Store
+    storeName: StoreEnum
     url: string
     steps: (() => Promise<void>)[];
     getProductName: () => Promise<string>;

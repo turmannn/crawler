@@ -2,9 +2,12 @@
 // ...
 
 
-import {BrowserContext, chromium, devices, Page} from 'playwright-chromium';
-import {Action, Store} from "./types.js";
+import {chromium, devices, Page} from 'playwright-chromium';
+import {Action} from "./types.js";
 import amazon from "./providers/amazon.js";
+import {Browser, BrowserContext} from "playwright-core";
+import { Product, ProductOut, StoreEnum, UnprocessedProduct} from "../api/types.js";
+import {generateQueue, Queue} from "../services/scoutsService.js";
 
 
 
@@ -27,72 +30,113 @@ import amazon from "./providers/amazon.js";
 //     return { add, pop , len: queue.length };
 // }
 
-const generateQueue = <T>() => {
-    const queue: T[] = [];
-    const add = (item: T) => {
-        queue.unshift(item)
+// const generateQueue = <T>() => {
+//     const queue: T[] = [];
+//     const add = (item: T) => {
+//         queue.unshift(item)
+//     }
+//     const pop = () => queue.pop();
+//     return {
+//         add,
+//         pop ,
+//         get len () { return queue.length }
+//     };
+// }
+
+
+export const webScout = async (
+    inputQueue: Queue<Product>,
+    // outputQueue: Queue<Good>,
+    // errorQueue: Queue<UnprocessedProduct>
+    moveToOutputObject: (product: ProductOut) => Promise<any>,
+    moveToUnprocessed: (product: UnprocessedProduct) => Promise<any>
+) => {
+
+    // interface Input {
+    //     productId: string,
+    //     storeName: Store
+    // }
+
+// const asins = ['B00ATHBO86', 'B07PRRRLHT', 'B002UP153Y', 'B00136MKEO'];
+// asins.forEach(asin => {
+//     inputsQueue.add({productId: asin, storeName: 'amazon'})
+// })
+
+// const actionQueue = generateQueue<Action>();
+
+    // const pricesQueue = generateQueue<Good>();
+
+    // const runWebCrawler = (async (getProducts?: any, removeProduct?: any, addProcessedProduct?: any) => {
+
+    console.log('debug in webScout')
+        // restart web-scout if some error happened
+    const maxErrorsCounter = 100;
+    const waitAfterEmptyQueueSeconds = 3
+    let product: Product;
+    for (let i = 0; i < maxErrorsCounter; i++) {
+        let context: BrowserContext;
+        let browser: Browser;
+        try {
+            console.log('debug start web-scout in async')
+            // Setup
+            browser = await chromium.launch({headless: false});
+            // const context = await browser.newContext(devices['iPhone 11']);
+            context = await browser.newContext();
+            const page = await context.newPage();
+
+            // The actual interesting bit
+            await context.route('**.jpg', route => route.abort());
+
+            // console.log('debug asuns and inptsQueue: ', asins, inputsQueue)
+            while (true) { //TODO: may be while true instead? so it will check even after queue is 0
+                if (inputQueue.isEmpty) {
+                    console.log(`input queue is empty. Will wait ${waitAfterEmptyQueueSeconds} second/s until retry`)
+                    await new Promise(resolve => setTimeout((resolve), waitAfterEmptyQueueSeconds * 1000));
+                    continue;
+                }
+                product = inputQueue.pop() as Product;
+
+
+                let provider: Action
+                if (product.storeName === 'amazon') {
+                    provider = amazon(page, product.id);
+                } else throw 'Not Implemented';
+
+                await page.goto(provider.url);
+                for (const step of provider.steps) { await step();}
+                const price = await provider.getPrice();
+                const name = await provider.getProductName();
+                console.log('debug: about to add to priceQueue: ', {store: product.storeName, price, name})
+                // outputQueue.add({ storeName: product.storeName, price, name, id: product.id });
+                console.log('about to add processed product to output object')
+                await moveToOutputObject({
+                    storeName: product.storeName,
+                    price,
+                    name,
+                    id: product.id,
+                    updateTime: new Date()
+                });
+            }
+            // Teardown
+
+        } catch (e) {
+            console.error('web scout error: ', e)
+            // @ts-ignore
+            // errorQueue.add({ storeName: product.storeName, id: product.id, error: e.toString() })
+            await moveToUnprocessed({ storeName: product.storeName, id: product.id, error: e.toString() })
+
+            setTimeout(() => {}, 1000) //save resources in case it will get into while loop with unexpected instructions
+        } finally {
+            // @ts-ignore
+            if (context) await context.close();
+            // @ts-ignore
+            if (browser) await browser.close();
+        }
+        console.log(`web-scout stopped because limit errors of ${maxErrorsCounter} achieved`)
     }
-    const pop = () => queue.pop();
-    return {
-        add,
-        pop ,
-        get len () { return queue.length }
-    };
+    // });
+
+    // console.log('priceQueue: ', outputQueue)
+
 }
 
-interface Input {
-    productId: string,
-    storeName: Store
-}
-
-const inputsQueue = generateQueue<Input>();
-const asins = ['B00ATHBO86', 'B07PRRRLHT', 'B002UP153Y', 'B00136MKEO'];
-asins.forEach(asin => {
-    inputsQueue.add({productId: asin, storeName: 'amazon'})
-})
-
-const actionQueue = generateQueue<Action>();
-
-interface Good {
-    price: string,
-    store: Store,
-    name: string
-}
-
-const pricesQueue = generateQueue<Good>();
-
-(async () => {
-    console.log('debug start in async')
-    // Setup
-    const browser = await chromium.launch({headless: false});
-    // const context = await browser.newContext(devices['iPhone 11']);
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
-    // The actual interesting bit
-    await context.route('**.jpg', route => route.abort());
-
-    console.log('debug asuns and inptsQueue: ', asins, inputsQueue)
-    while (inputsQueue.len > 0) { //TODO: may be while true instead? so it will check even after queue is 0
-        const input = inputsQueue.pop() as Input;
-
-        let provider: Action
-        if (input.storeName === 'amazon') {
-            provider = amazon(page, input.productId);
-        } else throw 'Not Implemented';
-
-        await page.goto(provider.url);
-        for (const step of provider.steps) { await step();}
-        const price = await provider.getPrice();
-        const name = await provider.getProductName();
-        console.log('debug: about to add to priceQueue: ', {store: input.storeName, price, name})
-        pricesQueue.add({ store: input.storeName, price, name });
-    }
-
-
-    // Teardown
-    await context.close();
-    await browser.close();
-})();
-
-console.log('priceQueue: ', pricesQueue)
