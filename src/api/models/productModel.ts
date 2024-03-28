@@ -39,7 +39,7 @@
 //     const db = new LowSync(adapter, {})
 // }
 
-import { db} from "../database.js";
+import { db } from "../database.js";
 
 import {DBData, Product, ProductOut} from "../types.js";
 
@@ -64,24 +64,25 @@ const productModel = {
         await db.read()
         return db.data;
     },
-    findProduct: async (id: string, storeName: string): Promise<Product | undefined> => {
-        await db.read()
+    findProduct: (id: string, storeName: string): Product | undefined => {
+        db.read()
         const { productsIn } = db.data;
         return productsIn.find((product) => product.id === id && product.storeName === storeName)
     },
-    removeProducts: async (product: Product): Promise<Product[] | []> => {
+    removeProducts: (product: Product): Product[] | [] => {
         db.read()
-        db.data.productsIn.filter(item => item.id !== product.id || item.storeName !== product.storeName  )
-        db.update()
+        db.data.productsIn = db.data.productsIn.filter(item =>
+            item.id !== product.id || item.storeName !== product.storeName
+        );
         db.write();
-        db.read();
+
         return db.data.productsIn
     },
-    getProducts: async (): Promise<Product[]> => {
-        await db.read()
+    getProducts: (): Product[] => {
+        db.read()
         return db.data.productsIn;
     },
-    addProduct: async (product: Product): Promise<Product[]> => {
+    addProduct: (product: Product): Product[] => {
         // await dbConnection.read();
         // // dbConnection.data = { products: [ ...dbConnection.data.products, product] };
         // dbConnection.data = { products: [ ...(dbConnection.data as DBData).products, product] };
@@ -98,7 +99,7 @@ const productModel = {
             console.log(`Product with id: ${product.id} already exists in the input database`)
         } else {
             db.data.productsIn.push(product);
-            await db.write();
+            db.write();
         }
         return db.data.productsIn
     }

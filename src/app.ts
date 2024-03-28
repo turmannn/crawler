@@ -11,7 +11,9 @@ import config from './api/config/index.js';
 // import webScout from "./web-scout/index.js";
 import { initScoutService } from "./services/scoutsService.js";
 import {webScout} from "./web-scout/index.js";
-import {initDb} from "./api/database.js";
+import {PersistDb} from "./api/database.js";
+
+// import {initDb} from "./api/database.js";
 // import {dbConnect} from "./api/models/productModel";
 
 // db
@@ -23,7 +25,7 @@ import {initDb} from "./api/database.js";
 // const db = new LowSync(adapter, {products: []}) //TODO: does ot rewrite existing data? if so fix it!
 // export const connect = dbConnect();
 
-initDb()
+PersistDb();
 
 
 console.log('about to move products from db to stores queues')

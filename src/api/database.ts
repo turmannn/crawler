@@ -23,7 +23,7 @@ import { JSONFileSync } from 'lowdb/node'
 import("lowdb/node")
 // import {DBData, Product} from "../types";
 import config from "./config/index.js";
-import {DBData} from "./types.js";
+import {DBData, Product} from "./types.js";
 
 
 const adapter = new JSONFileSync<DBData>(config.database.path)
@@ -34,11 +34,22 @@ export const db = new LowSync<DBData>(adapter, {
 })
 
 // persist old data if server restarted
-export const initDb = async () => {
-    await db.read();
-    await db.write();
+export const PersistDb = () => {
+    db.read();
+    db.write();
 }
 
 // db.data = {...db.data}
-
-
+// export default {
+//         ops: db,
+//     initDb: () => {
+//         db.read();
+//         db.write();
+//     },
+//     removeFromObject: <T>(objectName: string, filterCallBack): T  => {
+//         db.read();
+//         db.data[objectName] = (db.data[objectName] as T).filter(filterCallBack);
+//         db.write();
+//         return db.data[objectName] as T;
+//     }
+// }

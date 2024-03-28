@@ -24,37 +24,37 @@ interface Response<T> {
 const message = 'Success';
 
 const productService = {
-    showProducts: async (): Promise<Response<ProductOut>> => {
+    showProducts: (): Response<ProductOut> => {
         return {
             message,
-            products: await productOutModel.getProducts()
+            products: productOutModel.getProducts()
         };
     },
-    moveProductToUnknown: async (product: UnprocessedProduct): Promise<Response<UnprocessedProduct>> => {
-        await productModel.removeProducts({ storeName: product.storeName, id: product.id });
-        await unprocessedModel.addProduct(product);
+    moveProductToUnknown: (product: UnprocessedProduct): Response<UnprocessedProduct> => {
+        productModel.removeProducts({ storeName: product.storeName, id: product.id });
+        unprocessedModel.addProduct(product);
         return {
             message,
-            products: await unprocessedModel.getProducts()
+            products: unprocessedModel.getProducts()
         };
     },
-    moveProductToProcessed: async (product: ProductOut): Promise<Response<UnprocessedProduct>> => {
-        await productModel.removeProducts({ storeName: product.storeName, id: product.id });
-        await pricesModel.addProduct(product);
+    moveProductToProcessed: (product: ProductOut): Response<UnprocessedProduct> => {
+        productModel.removeProducts({ storeName: product.storeName, id: product.id });
+        pricesModel.addProduct(product);
         return {
             message,
-            products: await unprocessedModel.getProducts()
+            products: unprocessedModel.getProducts()
         };
     },
-    processProduct: async (product: Product): Promise<Response<Product>> => {
-        const productFound = await productModel.findProduct(product.id, product.storeName)
+    processProduct: (product: Product): Response<Product> => {
+        const productFound = productModel.findProduct(product.id, product.storeName)
         if (productFound) {
             return {
                 message: `Product with id: ${product.id} already is in the processing queue. Skipping...`,
-                products: await productModel.getProducts()
+                products: productModel.getProducts()
             }
         } else {
-            const products = await productModel.addProduct(product)
+            const products = productModel.addProduct(product)
             return { message, products }
         }
     }

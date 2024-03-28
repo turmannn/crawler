@@ -1,15 +1,15 @@
-import { db} from '../database.js';
+import { db } from '../database.js';
 import { ProductOut } from '../types.js';
 
 
 const productOutModel = {
-    getProducts: async (): Promise<ProductOut[]>  => {
-        await db.read()
+    getProducts: (): ProductOut[]  => {
+        db.read()
         return db.data.productsOut;
     },
-    addProduct: async (product: ProductOut): Promise<void>  => {
+    addProduct: (product: ProductOut): void => {
         db.data.productsOut.push(product);
-        await db.write();
+        db.write();
     }
 }
 
