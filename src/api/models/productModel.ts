@@ -83,6 +83,7 @@ const productModel = {
         return db.data.productsIn;
     },
     addProduct: (product: Product): Product[] => {
+        db.read();
         // await dbConnection.read();
         // // dbConnection.data = { products: [ ...dbConnection.data.products, product] };
         // dbConnection.data = { products: [ ...(dbConnection.data as DBData).products, product] };
@@ -101,6 +102,13 @@ const productModel = {
             db.data.productsIn.push(product);
             db.write();
         }
+        return db.data.productsIn
+    },
+    addProducts: (products: Product[]): Product[] => {
+        // TODO: implement no duplicates here or in service?
+        db.read();
+        db.data.productsIn.push(...products);
+        db.write();
         return db.data.productsIn
     }
 }

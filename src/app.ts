@@ -9,7 +9,7 @@ import routes from './api/routes/index.js'
 // import { JSONFileSync } from 'lowdb/node'
 import config from './api/config/index.js';
 // import webScout from "./web-scout/index.js";
-import { initScoutService } from "./services/scoutsService.js";
+import {getSoreQueues, initScoutService} from "./services/scoutsService.js";
 import {webScout} from "./web-scout/index.js";
 import {PersistDb} from "./api/database.js";
 
@@ -27,9 +27,9 @@ import {PersistDb} from "./api/database.js";
 
 PersistDb();
 
+export const { inputsQueueAmazon, inputsQueueEbay} = getSoreQueues();
 
-console.log('about to move products from db to stores queues')
-initScoutService();
+initScoutService(inputsQueueAmazon, inputsQueueEbay);
 
 // express app
 const app = express();

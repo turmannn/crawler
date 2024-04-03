@@ -2,16 +2,29 @@ export type Store = 'amazon' | 'ebay'
 
 export enum StoreEnum {
     Amazon = 'amazon',
-    Ebay = 'ebay'
+    Ebay = 'ebay',
+    Unknown = ''
 }
 
-export interface Product {
-    storeName: StoreEnum,
+interface ProductTemplate {
+    storeName: string,
     id: string,
 }
 
-export interface UnprocessedProduct {
+export interface Product extends ProductTemplate {
     storeName: StoreEnum,
+}
+
+export interface ProductAmazon extends ProductTemplate {
+    storeName: StoreEnum.Amazon,
+}
+
+export interface ProductEbay extends ProductTemplate {
+    storeName: StoreEnum.Ebay,
+}
+
+export interface UnprocessedProduct {
+    storeName: string,
     id: string,
     error: string
 }

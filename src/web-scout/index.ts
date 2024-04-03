@@ -41,6 +41,7 @@ import TimeoutError = errors.TimeoutError;
 
 
 export const webScout = async (
+    scoutProvider: (page: Page, productId: string) => Action,
     inputQueue: Queue<Product>,
     // outputQueue: Queue<Good>,
     // errorQueue: Queue<UnprocessedProduct>
@@ -96,16 +97,21 @@ export const webScout = async (
                 }
                 const newProduct = inputQueue.pop() as Product;
                 // wait antiScrapperTimerSeconds to mimic human speed
+                // @ts-ignore
                 if (product === newProduct) {
                     await new Promise(resolve => setTimeout((resolve), antiScrapperTimerSeconds * 1000));
                 }
                 product = newProduct;
 
 
-                let provider: Action
-                if (product.storeName === 'amazon') {
-                    provider = amazon(page, product.id);
-                } else throw 'Not Implemented';
+                // let provider: Action
+                // if (product.storeName === 'amazon') {
+                //     provider = amazon(page, product.id);
+                // } else throw 'Not Implemented';
+
+
+                const provider = scoutProvider(page, product.id);
+
 
                 try {
                     // do not visit url if it is already set
