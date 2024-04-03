@@ -9,9 +9,10 @@ import routes from './api/routes/index.js'
 // import { JSONFileSync } from 'lowdb/node'
 import config from './api/config/index.js';
 // import webScout from "./web-scout/index.js";
-import {getSoreQueues, initScoutService} from "./services/scoutsService.js";
+import {startScoutService} from "./services/scoutsService.js";
 import {webScout} from "./web-scout/index.js";
 import {PersistDb} from "./api/database.js";
+import productService from "./services/productService.js";
 
 // import {initDb} from "./api/database.js";
 // import {dbConnect} from "./api/models/productModel";
@@ -25,11 +26,12 @@ import {PersistDb} from "./api/database.js";
 // const db = new LowSync(adapter, {products: []}) //TODO: does ot rewrite existing data? if so fix it!
 // export const connect = dbConnect();
 
-PersistDb();
+PersistDb(); //TODO: probably i dont need this. Check how it works without it!
 
-export const { inputsQueueAmazon, inputsQueueEbay} = getSoreQueues();
+export const { inputsQueueAmazon, inputsQueueEbay} = productService.initStoreQueus();
+productService.spreadProducts();
 
-initScoutService(inputsQueueAmazon, inputsQueueEbay);
+startScoutService(inputsQueueAmazon, inputsQueueEbay);
 
 // express app
 const app = express();

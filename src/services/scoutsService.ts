@@ -1,7 +1,5 @@
-import {Product, ProductAmazon, ProductEbay, StoreEnum} from "../api/types.js";
+import {Product, ProductAmazon, ProductEbay, ProductUnknown, StoreEnum} from "../api/types.js";
 import ProductModel from "../api/models/productModel.js";
-import amazon from "../web-scout/providers/amazon.js";
-import {webScout} from "../web-scout/index.js";
 import productService from "./productService.js";
 
 export type Queue<T, N = string> = {
@@ -13,12 +11,31 @@ export type Queue<T, N = string> = {
     print: () => string;
 }
 
-export const generateQueue = <T, N = string>(name?: N): Queue<T, N> => {
-    const queueName = name || '';
+// export const generateQueue = <T, N = string>(name?: N): Queue<T, N> => {
+//     const queueName = name || '';
+//     const queueId = Math.floor(Math.random() * 1000)
+//     const queue: T[] = [];
+//     const add = (item: T) => {
+//         console.log(`item added to queue. QueueId ${queueId}, QueueName: ${queueName}. item: ${item}`)
+//         queue.unshift(item)
+//     }
+//     const pop = () => queue.pop();
+//     return {
+//         add,
+//         pop ,
+//         get isEmpty() { return queue.length === 0 },
+//         get len() { return queue.length },
+//         get name() { return queueName },
+//         print: () => `Queue Name: ${queueName}. Object: ${JSON.stringify(queue)}`
+//     };
+// }
+
+export const generateQueue = <T, N = string>(name: N): Queue<T, N> => {
+    const queueName = name;
     const queueId = Math.floor(Math.random() * 1000)
     const queue: T[] = [];
     const add = (item: T) => {
-        console.log(`item added to queue ${queueId}: `, item)
+        console.log(`item added to queue. QueueId ${queueId}, QueueName: ${queueName}. item: ${JSON.stringify(item)}`)
         queue.unshift(item)
     }
     const pop = () => queue.pop();
@@ -28,7 +45,7 @@ export const generateQueue = <T, N = string>(name?: N): Queue<T, N> => {
         get isEmpty() { return queue.length === 0 },
         get len() { return queue.length },
         get name() { return queueName },
-        print: () => JSON.stringify(`Queue Name: ${queueName}. Object: ${JSON.stringify(queue)}`)
+        print: () => `Queue Name: ${queueName}. Object: ${JSON.stringify(queue)}`
     };
 }
 
@@ -51,62 +68,28 @@ export interface ProductsLists {
 // }
 
 
-export const splitProductsByStore = (productsList: Product[]): ProductsLists[] => {
-    // const productsAmazon: ProductsList<ProductAmazon> = {};
-    // const productsAmazon: ProductAmazon[] = [];
-    // const productsEbay: ProductEbay[] = [];
-    // const unrecognizedProducts: UnprocessedProduct[] =[];
-
-    const supportedStores: StoreEnum[] = [StoreEnum.Unknown, StoreEnum.Amazon, StoreEnum.Ebay]
-    const [productsUnknown, productsAmazon, productsEbay] = supportedStores.map(
-        store => ({ name: store, list: [] })
-    )
-
-    for (const product of productsList) {
-        if (product.storeName === StoreEnum.Amazon) {
-            productsAmazon.list.push(product as ProductAmazon);
-        } else if (product.storeName === StoreEnum.Ebay) {
-            productsEbay.list.push(product as ProductEbay);
-        } else productsUnknown.list.push({ ...product, error: `Store ${product.storeName} is Unsupported` });
-    }
-    return [productsAmazon, productsEbay, productsUnknown]
-}
-
 // interface Input {
 //     productId: string,
 //     storeName: Store
 // }
 
-export const getSoreQueues = () => {
-    const products = ProductModel.getProducts();
 
-    const { productsAmazon, productsEbay, unrecognizedProducts  } = splitProductsByStore(products);
-
-    //TODO: figure out whether there is really a case when unrecognized items can seat in productsIn db or service can handle it when it comes from user
-    unrecognizedProducts.forEach(product => { productService.moveProductToUnknown(product); })
-
-    const inputsQueueAmazon = generateQueue<ProductAmazon, StoreEnum.Amazon>();
-    productsAmazon.forEach((product: ProductAmazon) => { inputsQueueAmazon.add(product) });
-
-    const inputsQueueEbay = generateQueue<ProductEbay, StoreEnum.Ebay>();
-    productsEbay.forEach((product) => { inputsQueueEbay.add(product) });
-
-    return {inputsQueueAmazon, inputsQueueEbay}
-}
-
-export const initScoutService = async (
+export const startScoutService = async (
     inputsQueueAmazon: Queue<ProductAmazon, StoreEnum.Amazon>,
     inputsQueueEbay: Queue<ProductEbay, StoreEnum.Ebay>
-) => {
+): Promise<void> => {
     console.log('about to start web scout: ', inputsQueueAmazon.print(), )
 
-    await webScout(
-        amazon,
-        // inputsQueueAmazon as Queue<Product>, //TODO: why ts complains if used without ' as Queue<Product>'
-        inputsQueueAmazon,
-        productService.moveProductToProcessed,
-        productService.moveProductToUnknown
-    );
+    // await webScout(
+    //     amazon,
+    //     // inputsQueueAmazon as Queue<Product>, //TODO: why ts complains if used without ' as Queue<Product>'
+    //     inputsQueueAmazon,
+    //     productService.moveProductToProcessed,
+    //     productService.moveProductToUnknown
+    // );
+
+    console.log('debug input queues: ', inputsQueueAmazon.print(), inputsQueueEbay.print())
+
 
     // await webScout(
     //     ebay,

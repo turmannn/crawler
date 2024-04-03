@@ -70,7 +70,7 @@ const productModel = {
         return productsIn.find((product) => product.id === id && product.storeName === storeName)
     },
     removeProducts: (product: Product): Product[] | [] => {
-        db.read()
+        db.read();
         db.data.productsIn = db.data.productsIn.filter(item =>
             item.id !== product.id || item.storeName !== product.storeName
         );

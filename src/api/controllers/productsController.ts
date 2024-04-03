@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import {Product, Store, StoreEnum} from "../types.js";
 import productService from "../../services/productService.js";
-import {getSoreQueues} from "../../services/scoutsService.js";
 import {inputsQueueAmazon} from "../../app.js";
 
 // export const processProducts = async (req: Request, res: Response) => {

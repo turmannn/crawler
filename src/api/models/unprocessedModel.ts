@@ -19,7 +19,7 @@ const productModel = {
     removeProducts: (product: Product): Product[] | [] => {
         db.read();
         db.data.productsIn = db.data.productsIn.filter(item =>
-            item.id !== product.id || item.storeName !== product.storeName
+            !(item.id === product.id && item.storeName === product.storeName)
         );
         db.write();
         db.read();

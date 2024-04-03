@@ -6,26 +6,22 @@ export enum StoreEnum {
     Unknown = ''
 }
 
-interface ProductTemplate {
-    storeName: string,
+export interface Product<T = StoreEnum> {
+    storeName: T,
     id: string,
 }
 
-export interface Product extends ProductTemplate {
-    storeName: StoreEnum,
-}
+export type ProductAmazon = Product<StoreEnum.Amazon>
 
-export interface ProductAmazon extends ProductTemplate {
-    storeName: StoreEnum.Amazon,
-}
-
-export interface ProductEbay extends ProductTemplate {
+export interface ProductEbay extends Product {
     storeName: StoreEnum.Ebay,
 }
 
-export interface UnprocessedProduct {
-    storeName: string,
-    id: string,
+export interface ProductUnknown extends Product {
+    storeName: StoreEnum.Unknown,
+}
+
+export interface UnprocessedProduct extends Product {
     error: string
 }
 
