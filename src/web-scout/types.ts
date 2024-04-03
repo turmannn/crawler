@@ -1,5 +1,3 @@
-// export type Store = 'amazon' | 'ebay'
-
 import {StoreEnum} from "../api/types.js";
 
 export interface Action {

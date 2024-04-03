@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
-import {Product, Store, StoreEnum} from "../types.js";
+import {Product, StoreEnum} from "../types.js";
 import productService from "../../services/productService.js";
-import {inputsQueueAmazon} from "../../app.js";
 
-// export const processProducts = async (req: Request, res: Response) => {
-//    throw new Error('not implemented')
-// }
 
 export const getProducts = async (req: Request, res: Response) => {
     console.log('debug get products endpoint')
@@ -18,39 +14,24 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 }
 
-interface ProductForProcessing {
-    id: string,
-    storeName: Store,
-}
-
-const validateProductRequest = (product: Product, res: Response): boolean => {
-    let successFlag = false;
+const validateProductRequest = (product: Product, res: Response, validateStoreName = false): string => {
+    let errorMessage = '';
     const { storeName, id } = product;
-    console.log('debug: ', product)
-    console.log(id, storeName)
+    console.log('debug: ', id, storeName, product)
     if (!id) {
-        res.status(400).send('param id has to be provided')
+        errorMessage = 'param id has to be provided';
     } else if (!storeName) {
-        res.status(400).send('param storeName has to be provided')
-    } else if (!Object.values(StoreEnum).includes(storeName.toLowerCase() as StoreEnum)) {
-        res.status(400).send('store name provided is not supported')
-    } else {
-        successFlag = true;
+        errorMessage = 'param storeName has to be provided';
+    } else if (validateStoreName && !Object.values(StoreEnum).includes(storeName.toLowerCase() as StoreEnum)) {
+        errorMessage = 'store name provided is not supported';
     }
-
-    return successFlag;
+    return errorMessage;
 }
 
 export const addProduct = async (req: Request<{}, {}, Product>, res: Response) => {
-    // try {
-    //     const products = await productModel.getAllProducts();
-    //     res.status(200).json(products);
-    // } catch (error) {
-    //
-    // }
     try {
         const { storeName, id  } = req.body;
-        const successFlag = validateProductRequest(req.body, res);
+        const successFlag = validateProductRequest(req.body, res, true);
         if (successFlag) {
             const serviceRes =
                 productService.processProduct({
@@ -65,29 +46,21 @@ export const addProduct = async (req: Request<{}, {}, Product>, res: Response) =
     }
 }
 
-// interface Products {
-//     products: Product[]
-// }
-
 export const addProducts = async (req: Request<{}, {}, Product[]>, res: Response) => {
     try {
         const productsIn = req.body;
-        console.log(11, req.body)
 
         if (!Array.isArray(productsIn)) {
-            res.status(400).send('"products" type has to be array')
+            res.status(400).send('"products" type has to be array');
         }
 
         for (const product of productsIn) {
-            console.log(12, product)
-            validateProductRequest(product, res);
+            const errorMessage = validateProductRequest(product, res);
+            if (errorMessage) return res.status(400).send(errorMessage);
         }
 
         const productsInDb = productService.processProducts(productsIn);
         res.status(200).json(productsInDb);
-
-
-
     } catch (e) {
         console.error(e)
         res.status(500).send('unable to process request')

@@ -1,10 +1,6 @@
 // TODO: looks like the file is not needed as there is no a model approach in lowdb
-
 import { db } from "../database.js";
-
-import {DBData, Product, ProductOut, UnprocessedProduct} from "../types.js";
-
-import {LowSync} from "lowdb";
+import { Product, UnprocessedProduct } from "../types.js";
 
 const productModel = {
     getProducts: (): UnprocessedProduct[]  => {

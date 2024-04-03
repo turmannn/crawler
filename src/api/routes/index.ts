@@ -5,8 +5,6 @@ const router = Router();
 
 router.use('/products', productRoutes);
 
-router.use('/*', (req, res) => {
-    res.send('unsupported endpoint')
-})
+router.use('/*', (req, res) => { res.send('unsupported endpoint') });
 
 export default router

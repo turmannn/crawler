@@ -47,7 +47,7 @@ const productService = {
         //         })
         //     }
         // })
-        spreadProducts(products, false);
+         const knownStoresProducts = spreadProducts(products, false);
         // //TODO: figure out whether there is really a case when unrecognized items can seat in productsIn db or service can handle it when it comes from user
         // unrecognizedProducts.forEach((product: ProductUnknown) => { productService.moveProductToUnknown(product); })
         //
@@ -105,50 +105,17 @@ const productService = {
         //     return { message, products }
         // }
 
-        let productsAdjustedCollector: Product[] = [];
-        spreadProducts(products);
-        // const {productsAmazon, productsEbay} = splitProductsByStore(products);
 
-        // productLists.productsAmazon
+        // const knownStoresProducts: Product[] = spreadProducts(products).reduce(
+        //     (finalList, store) => store.name === StoreEnum.Unknown ? finalList : [...finalList, ...store.list],
+        //     []
+        // );
 
-        // Object.entries(splitProductsByStore(products)).forEach(([productListName, products]) => {
-        //     // const b = productListName as ProductsLists.
-        //     const productsAdjusted = products.list.map((product: Product ) => {
-        //         const productAdjusted: Product = {
-        //             id: product.id.toString(),
-        //             storeName: product.storeName.toString().toLowerCase() as StoreEnum
-        //         }
-        //
-        //         console.log('debug storename: ', productListName, StoreEnum.Amazon, StoreEnum.Ebay)
-        //         if (productListName === StoreEnum.Amazon) {
-        //             inputsQueueAmazon.add(product as ProductAmazon);
-        //         } else if (productListName === StoreEnum.Ebay) {
-        //             inputsQueueEbay.add(product as ProductEbay);
-        //         }
-        //         return productAdjusted;
-        //     })
-        //     console.log('debug products adjusted: ', productsAdjusted)
-        //     productsAdjustedCollector.push(...productsAdjusted)
-        // })
-
-        // [productsAmazon, productsEbay].forEach(products => {
-        //     const productsAdjusted = products.map((product: Product ) => {
-        //         const productAdjusted = {
-        //             id: product.id.toString(),
-        //             storeName: product.storeName.toString().toLowerCase() as StoreEnum
-        //         }
-        //         const {productsAmazon, productsEbay} = splitProductsByStore(productAdjusted)
-        //         inputsQueueAmazon.add(productsAmazon);
-        //         inputsQueueEbay.add(productsEbay);
-        //         return productAdjusted;
-        //     })
-        // })
-
-
+        const knownStoresProducts: Product[] = spreadProducts(products);
 
         return {
             message,
-            products: productModel.addProducts(products)
+            products: productModel.addProducts(knownStoresProducts)
         }
     },
 }

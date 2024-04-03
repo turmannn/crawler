@@ -1,5 +1,3 @@
-export type Store = 'amazon' | 'ebay'
-
 export enum StoreEnum {
     Amazon = 'amazon',
     Ebay = 'ebay',
@@ -41,13 +39,3 @@ export interface DBData {
     productsOut: ProductOut[],
     unprocessed: UnprocessedProduct[]
 }
-
-
-
-// export interface Action {
-//     storeName: StoreEnum
-//     url: string
-//     steps: (() => Promise<void>)[];
-//     getProductName: () => Promise<string>;
-//     getPrice: () => Promise<string>;
-// }

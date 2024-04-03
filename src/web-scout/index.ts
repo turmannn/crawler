@@ -1,43 +1,12 @@
 // @ts-check
 // ...
 
-import {chromium, devices, Page} from 'playwright-chromium';
+import {chromium, Page} from 'playwright-chromium';
 import {Action} from "./types.js";
-import amazon from "./providers/amazon.js";
 import {Browser, BrowserContext, errors} from "playwright-core";
 import { Product, ProductOut, StoreEnum, UnprocessedProduct} from "../api/types.js";
-import {generateQueue, Queue} from "../services/scoutsService.js";
+import {Queue} from "../services/scoutsService.js";
 import TimeoutError = errors.TimeoutError;
-
-// const step = async (page: Page) => {
-//     await page.goto('https://example.com/');
-//
-// }
-
-// const generateActionsQueue = () => {
-//     const queue: Action[] = [];
-//
-//     const add = (action: Action) => { queue.unshift(action) }
-//
-//     const pop = () => queue.pop();
-//
-//     // const get = () => queue;
-//
-//     return { add, pop , len: queue.length };
-// }
-
-// const generateQueue = <T>() => {
-//     const queue: T[] = [];
-//     const add = (item: T) => {
-//         queue.unshift(item)
-//     }
-//     const pop = () => queue.pop();
-//     return {
-//         add,
-//         pop ,
-//         get len () { return queue.length }
-//     };
-// }
 
 
 export const webScout = async (
@@ -48,27 +17,13 @@ export const webScout = async (
     moveToOutputObject: (product: ProductOut) => any,
     moveToUnprocessed: (product: UnprocessedProduct) => any
 ) => {
-
-    // interface Input {
-    //     productId: string,
-    //     storeName: Store
-    // }
-
-// const asins = ['B00ATHBO86', 'B07PRRRLHT', 'B002UP153Y', 'B00136MKEO'];
-// asins.forEach(asin => {
-//     inputsQueue.add({productId: asin, storeName: 'amazon'})
-// })
-
-// const actionQueue = generateQueue<Action>();
-
-    // const pricesQueue = generateQueue<Good>();
-
-    // const runWebCrawler = (async (getProducts?: any, removeProduct?: any, addProcessedProduct?: any) => {
-
     console.log('debug in webScout')
         // restart web-scout if some error happened
-    const maxErrorsCounter = 100;
+    const maxErrorsCounter = 10;
     const waitAfterEmptyQueueSeconds = 5;
+    const productTimeoutMaxRetry = 2;
+    type ProductsWithTimeoutes = Record<string, Product & {counter: number}>
+    const productsWithTimeoutes: ProductsWithTimeoutes  = {};
     let product: Product;
     const antiScrapperTimerSeconds = 3; //so program looks more like a human from the Store point of veiw
     for (let i = 0; i < maxErrorsCounter; i++) {
@@ -103,13 +58,6 @@ export const webScout = async (
                 }
                 product = newProduct;
 
-
-                // let provider: Action
-                // if (product.storeName === 'amazon') {
-                //     provider = amazon(page, product.id);
-                // } else throw 'Not Implemented';
-
-
                 const provider = scoutProvider(page, product.id);
 
 
@@ -136,7 +84,20 @@ export const webScout = async (
                     });
                 } catch (e) {
                     if (e instanceof TimeoutError) {
-                        console.error('product can not be found for a long time. Will go to next product')
+                        const counterObj = productsWithTimeoutes[product.id]
+
+                        console.log('debug timeout retry counter: ', counterObj)
+                        if (counterObj?.counter >= productTimeoutMaxRetry) {
+                            delete productsWithTimeoutes[product.id]
+                            throw e
+                        } else {
+                            productsWithTimeoutes[product.id] = {
+                                ...product,
+                                counter: counterObj ? counterObj.counter + 1 : 1
+                            };
+                            console.error('product can not be found for a long time. Will requeue it!')
+                            inputQueue.add(product);
+                        }
                     } else throw e;
                 }
 
@@ -158,9 +119,4 @@ export const webScout = async (
         }
         console.log(`web-scout stopped because limit errors of ${maxErrorsCounter} achieved`)
     }
-    // });
-
-    // console.log('priceQueue: ', outputQueue)
-
 }
-
