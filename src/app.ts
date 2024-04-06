@@ -19,6 +19,13 @@ const app = express();
 //Middleware // TODO: do i need it? several examples used it!
 app.use(express.json())
 
+app.use((req, res, next) => {
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey === process.env.API_KEY) {
+        next();
+    } else res.status(403).send('Unauthorized');
+})
+
 // Routes
 // app.use('/api/users', routes)
 app.use('/api', routes)
